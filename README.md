@@ -81,7 +81,7 @@ chmod +x install.sh
 ./install.sh
 ```
 
-The initial build can take some time, however it does not need any user input until the very end, so go and make a cup of coffee and keep an eye on the touchscreen.  When the build is finished the Pi will reboot and start-up with the Langstone Transceiver. If it does not appear to be working then see the Langstone wiki for some things to look at.
+The initial build can take some time, however it does not need any user input, so go and make a cup of coffee and keep an eye on the touchscreen.  When the build is finished the Pi will reboot and start-up with the Langstone Transceiver. If it does not appear to be working then see the Langstone wiki for some things to look at.
 
 # Updating the Software. 
 
