@@ -1,2 +1,4 @@
 # Langstone-V3
-Langstone SDR. V3 is compatible with Raspberry Pi 5
+This is still a work in progress. It may not yet work correctly. 
+
+Langstone SDR. V3 will be compatible with Raspberry Pi 5
