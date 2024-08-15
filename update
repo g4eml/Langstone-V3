@@ -1,0 +1,16 @@
+#!/bin/bash
+cd /home/pi
+cp /home/pi/Langstone/Langstone_Pluto.conf /tmp
+rm -rf /home/pi/Langstone
+git clone http://www.github.com/g4eml/Langstone-V3
+mv Langstone-V3 Langstone
+cp /tmp/Langstone_Pluto.conf /home/pi/Langstone
+chmod +x /home/pi/Langstone/build
+chmod +x /home/pi/Langstone/run
+chmod +x /home/pi/Langstone/stop
+chmod +x /home/pi/Langstone/update
+chmod +x /home/pi/Langstone/set_pluto
+chmod +x /home/pi/Langstone/set_sound
+/home/pi/Langstone/build
+
+

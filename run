@@ -1,0 +1,68 @@
+#
+#!/bin/bash
+
+# Do not Change this line directly.
+# Please use the command ./set_pluto to configure the Pluto IP address if required. 
+# This will ensure that all necessary files are updated, including this one. 
+
+export PLUTO_IP=pluto.local
+
+#Create command pipe
+if test -e /tmp/langstoneTRx ;then
+rm /tmp/langstoneTRx
+fi
+mkfifo /tmp/langstoneTRx
+
+#Test to see if the flowgraph is already running
+if !(ps -ax |grep -v grep| grep -q Lang_TRX_Pluto.py) then
+   sudo amixer  cset numid=6 100%  > /dev/null 2>&1
+   sudo amixer  cset numid=8 50%  > /dev/null 2>&1
+   sudo cp /home/pi/Langstone/splashload_Pluto.bgra /dev/fb0
+   
+   retry=0
+   until [ ${retry} -ge 4 ]
+   do
+      (ping -c1 $PLUTO_IP 2>/dev/null |grep -q received) && break
+       retry=$[${retry}+1]
+       sleep 1
+   done
+
+   #Check if Pluto failed to respond
+
+   if [ ${retry} -ge 4 ]; then
+      clear
+      sudo cp /home/pi/Langstone/plutofail.bgra /dev/fb0
+      sleep 5
+      exit 0
+   fi
+
+   # Check if Pluto was rebooting and was slow to respond
+
+   if [ ${retry} -ge 1 ]; then
+      sleep 5
+   fi
+
+   #start up the GNU Radio flowgraph
+   python /home/pi/Langstone/Lang_TRX_Pluto.py > /tmp/LangstoneTRX_Pluto.log 2>&1 &
+   sleep 10
+
+   #check that the GNU module started corretly
+
+   if (ps -ax | grep -v grep| grep -q Lang_TRX_Pluto.py)then
+      # If it did then start the GUI
+      /home/pi/Langstone/GUI_Pluto > /tmp/LangstoneGUI_Pluto.log 2>&1
+   else
+      # If not then display the error screen  
+      sudo cp /home/pi/Langstone/gnufail_Pluto.bgra /dev/fb0
+      sleep 5
+   fi
+   # Send a reboot command to Pluto after GUI Exits
+   ssh-keygen -f "/home/pi/.ssh/known_hosts" -R $PLUTO_IP >/dev/null 2>&1
+   timeout 2 sshpass -p analog ssh -o StrictHostKeyChecking=no root@$PLUTO_IP 'PATH=/bin:/sbin:/usr/bin;reboot'  >/dev/null 2>&1
+
+else
+   echo Langstone is already running. Use ./stop first.
+   sleep 5
+fi
+
+sudo cp /home/pi/Langstone/splash.bgra /dev/fb0
