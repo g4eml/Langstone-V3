@@ -1,5 +1,7 @@
 # Langstone-V3 SDR Transceiver by Colin Durbridge G4EML
 
+# This version is still under development. It may not be fully working yet.
+
 # Currently only supports the Adalm Pluto, the Raspberry Pi 5  and the official 7" LCD Display.
 
 This is an experimental project to produce a simple VHF, UHF and Microwave SDR Transceiver operating on SSB CW and FM.
