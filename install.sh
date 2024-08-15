@@ -24,7 +24,7 @@ echo "#################################"
 
 ## Install the packages that we need
 sudo apt-get -y install git
-sudo apt-get -y install pipcd Lan 
+sudo apt-get -y install pip 
 sudo apt-get -y install gnuradio
 sudo apt-get -y install cmake
 sudo apt-get -y install libusb-1.0-0-dev
@@ -117,4 +117,5 @@ echo "##       Reboot and Start      ##"
 echo "#################################"
 
 #Reboot and start
+sleep 5
 sudo reboot
