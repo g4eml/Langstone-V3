@@ -1,4 +1,4 @@
-#include <iio.h>
+#include <iio/iio.h>
 #include <sys/time.h>
 #include <stdio.h>
 
@@ -8,6 +8,7 @@
 void setPlutoRxFreq(long long rxfreq);
 void initPluto(void);
 long long runTimeMs(void);
+int wr_ch_lli(struct iio_channel *chn, const char* what, long long val);
 
 int plutoPresent;
 int plutoFailures;
@@ -62,11 +63,26 @@ if(plutoPresent==0)
 void setPlutoRxFreq(long long rxfreq)
 {
    int ret;
-    ret=iio_channel_attr_write_longlong(iio_device_find_channel(plutophy, "altvoltage0", true),"frequency", rxfreq); //Rx LO Freq 
+    ret=wr_ch_lli(iio_device_find_channel(plutophy, "altvoltage0", true),"frequency", rxfreq); //Rx LO Freq 
     if(ret<0) 
     {
     plutoFailures++;
     }
+}
+
+/* write attribute: long long int */
+int wr_ch_lli(struct iio_channel *chn, const char* what, long long val)
+{
+	const struct iio_attr *attr = iio_channel_find_attr(chn, what);
+  
+    if((iio_attr_write_longlong(attr, val)) !=0)
+      {
+        return -1;
+      }        
+    else
+      {
+        return 0;
+      }  
 }
 
 
@@ -85,8 +101,8 @@ return ((tt.tv_sec*1000) + (tt.tv_usec/1000));
 
 void initPluto(void)
 {
-    plutoctx = iio_create_context_from_uri(PLUTOIP);
-      if(plutoctx==NULL)
+    plutoctx = iio_create_context(NULL,PLUTOIP);
+      if(iio_err(plutoctx)!=0)
       {
         plutoPresent=0;
         return;

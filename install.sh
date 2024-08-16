@@ -33,6 +33,7 @@ sudo apt-get -y install libxml2-dev
 sudo apt-get -y install bison 
 sudo apt-get -y install flex 
 sudo apt-get -y install libaio-dev
+sudo apt-get -y install libzstd-dev
 
 echo "#################################"
 echo "##        Install LibIIO       ##"
@@ -41,7 +42,7 @@ echo "#################################"
 cd ~
 git clone https://github.com/analogdevicesinc/libiio.git
 cd libiio
-git reset --hard b6028fdeef888ab45f7c1dd6e4ed9480ae4b55e3  # Back to Version 0.25
+##git reset --hard b6028fdeef888ab45f7c1dd6e4ed9480ae4b55e3  # Back to Version 0.25
 cmake ./
 make all
 sudo make install
