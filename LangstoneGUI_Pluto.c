@@ -3,7 +3,7 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <time.h>
-#include <iio.h>
+#include <iio/iio.h>
 #include <unistd.h>
 #include <lgpio.h>
 #include <stdio.h>
@@ -89,6 +89,12 @@ void setCTCSS(int t);
 void displayError(char*st);
 void flushUDP(void);
 void setFFTBW(int bw);
+
+int wr_ch_lli(struct iio_channel *chn, const char* what, long long val);
+int wr_ch_bool(struct iio_channel *chn, const char* what, bool val);
+int wr_ch_dbl(struct iio_channel *chn, const char* what, double val);
+int wr_ch_str(struct iio_channel *chn, const char* what, const char* str);
+int wr_db_str(struct iio_device *dev, const char* what, const char* str);
 
 int minGain(double freq);
 int maxGain(double freq);
@@ -1016,8 +1022,8 @@ void displayError(char*st)
 
 void initPluto(void)
 {
-    plutoctx = iio_create_context_from_uri(plutoip);
-      if(plutoctx==NULL)
+    plutoctx = iio_create_context(NULL,plutoip);
+      if(iio_err(plutoctx)!=0)
       {
         plutoPresent=0;
         displayError("Pluto not responding");
@@ -1029,12 +1035,109 @@ void initPluto(void)
       }
 }
 
+
+/* write Pluto Channel attribute: long long int */
+int wr_ch_lli(struct iio_channel *chn, const char* what, long long val)
+{
+	const struct iio_attr *attr = iio_channel_find_attr(chn, what);
+  
+    if((iio_attr_write_longlong(attr, val)) !=0)
+      {
+        return -1;
+      }        
+    else
+      {
+        return 0;
+      }  
+}
+
+
+/* write Pluto Channel attribute: String */
+int wr_ch_str(struct iio_channel *chn, const char* what, const char* str)
+{
+	const struct iio_attr *attr = iio_channel_find_attr(chn, what);
+  
+    if((iio_attr_write_string(attr, str)) !=0)
+      {
+        return -1;
+      }        
+    else
+      {
+        return 0;
+      }  
+}
+
+
+/* write Pluto Debug attribute: String */
+int wr_db_str(struct iio_device *dev, const char* what, const char* str)
+{
+	const struct iio_attr *attr = iio_device_find_debug_attr(dev, what);
+  
+    if((iio_attr_write_string(attr, str)) !=0)
+      {
+        return -1;
+      }        
+    else
+      {
+        return 0;
+      }  
+}
+
+
+/* write Pluto Channel attribute: Double */
+int wr_ch_dbl(struct iio_channel *chn, const char* what, double val)
+{
+	const struct iio_attr *attr = iio_channel_find_attr(chn, what);
+  
+    if((iio_attr_write_double(attr, val)) !=0)
+      {
+        return -1;
+      }        
+    else
+      {
+        return 0;
+      }  
+}
+
+
+
+
+/* write Pluto Channel attribute: bool */
+int wr_ch_bool(struct iio_channel *chn, const char* what, bool val)
+{
+	const struct iio_attr *attr = iio_channel_find_attr(chn, what);
+  
+    if((iio_attr_write_bool(attr, val)) !=0)
+      {
+        return -1;
+      }        
+    else
+      {
+        return 0;
+      }  
+}
+
+/* Read Pluto Channel attribute: Double */
+int rd_ch_dbl(struct iio_channel *chn, const char* what, double* val)
+{
+	const struct iio_attr *attr = iio_channel_find_attr(chn, what);
+  
+    if((iio_attr_read_double(attr, val)) !=0)
+      {
+        return -1;
+      }        
+    else
+      {
+        return 0;
+      }  
+}
+
 void setPlutoRxFreq(long long rxfreq)
 {
 int ret;
    if(plutoPresent)
     { 
-      ret=iio_channel_attr_write_longlong(iio_device_find_channel(plutophy, "altvoltage0", true),"frequency", rxfreq); //Rx LO Freq
+      ret=wr_ch_lli(iio_device_find_channel(plutophy, "altvoltage0", true),"frequency", rxfreq); //Rx LO Freq
       if(ret<0)
       {
       displayError("Pluto not responding");
@@ -1048,7 +1151,7 @@ void setPlutoTxFreq(long long txfreq)
 int ret;
    if(plutoPresent)
     { 
-      ret=iio_channel_attr_write_longlong(iio_device_find_channel(plutophy, "altvoltage1", true),"frequency", txfreq); //Tx LO Freq
+      ret=wr_ch_lli(iio_device_find_channel(plutophy, "altvoltage1", true),"frequency", txfreq); //Tx LO Freq
    if(ret<0)
       {
       displayError("Pluto not responding");
@@ -1061,7 +1164,7 @@ void setPlutoTxAtt(int att)
 { 
   if(plutoPresent)
     {
-      iio_channel_attr_write_double(iio_device_find_channel(plutophy, "voltage0", true),"hardwaregain", (double)att); //set Tx Attenuator     
+      wr_ch_dbl(iio_device_find_channel(plutophy, "voltage0", true),"hardwaregain", (double)att); //set Tx Attenuator     
     }
 }
 
@@ -1071,12 +1174,12 @@ void setPlutoRxGain(int gain)
     {
      if(gain>maxGain(freq))
         {
-          iio_channel_attr_write(iio_device_find_channel(plutophy, "voltage0", false),"gain_control_mode", "slow_attack");  //set Auto Gain
+          wr_ch_str(iio_device_find_channel(plutophy, "voltage0", false),"gain_control_mode", "slow_attack");  //set Auto Gain
         }
         else
         {
-        iio_channel_attr_write(iio_device_find_channel(plutophy, "voltage0", false),"gain_control_mode", "manual");  //set Manual  Gain control
-        iio_channel_attr_write_double(iio_device_find_channel(plutophy, "voltage0", false),"hardwaregain", (double)gain); //set Rx Gain 
+        wr_ch_str(iio_device_find_channel(plutophy, "voltage0", false),"gain_control_mode", "manual");  //set Manual  Gain control
+        wr_ch_dbl(iio_device_find_channel(plutophy, "voltage0", false),"hardwaregain", (double)gain); //set Rx Gain 
         }
     } 
 }
@@ -1087,7 +1190,7 @@ int readPlutoRxGain(void)
 double ret;
       if(plutoPresent)
       {
-        iio_channel_attr_read_double(iio_device_find_channel(plutophy, "voltage0", false),"hardwaregain", &ret); //Read current Rx Gain
+        rd_ch_dbl(iio_device_find_channel(plutophy, "voltage0", false),"hardwaregain", &ret); //Read current Rx Gain
         return (int) ret; 
       }
       else
@@ -1105,11 +1208,11 @@ void PlutoTxEnable(int txon)
     { 
       if(txon==0)
         {
-        iio_channel_attr_write_bool(iio_device_find_channel(plutophy, "altvoltage1", true),"powerdown", true); //turn off TX LO
+        wr_ch_bool(iio_device_find_channel(plutophy, "altvoltage1", true),"powerdown", true); //turn off TX LO
         }
       else
         {
-        iio_channel_attr_write_bool(iio_device_find_channel(plutophy, "altvoltage1", true),"powerdown", false); //turn on TX LO
+        wr_ch_bool(iio_device_find_channel(plutophy, "altvoltage1", true),"powerdown", false); //turn on TX LO
         }
     }
 
@@ -1121,11 +1224,11 @@ void PlutoRxEnable(int rxon)
     {
       if(rxon==0)
         {
-        iio_channel_attr_write_bool(iio_device_find_channel(plutophy, "altvoltage0", true),"powerdown", true); //turn off RX LO
+        wr_ch_bool(iio_device_find_channel(plutophy, "altvoltage0", true),"powerdown", true); //turn off RX LO
         }
       else
         {
-        iio_channel_attr_write_bool(iio_device_find_channel(plutophy, "altvoltage0", true),"powerdown", false); //turn on RX LO
+        wr_ch_bool(iio_device_find_channel(plutophy, "altvoltage0", true),"powerdown", false); //turn on RX LO
         }
     }
 
@@ -1140,7 +1243,7 @@ void setPlutoGpo(int p)
 
   if(plutoPresent)
     {
-      iio_device_debug_attr_write(plutophy,"direct_reg_access",pins);
+      wr_db_str(plutophy,"direct_reg_access",pins);
     }
 }
 
