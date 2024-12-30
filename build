@@ -1,3 +1,3 @@
-cc /home/pi/Langstone/LangstoneGUI_Pluto.c -o /home/pi/Langstone/GUI_Pluto -liio -llgpio 
-cc /home/pi/Langstone/HW_Test.c -o /home/pi/Langstone/HW_Test -llgpio
-cc /home/pi/Langstone/Pluto_Test.c -o /home/pi/Langstone/Pluto_Test -liio
+cc /home/$USER/Langstone/LangstoneGUI_Pluto.c -o /home/$USER/Langstone/GUI_Pluto -liio -llgpio 
+cc /home/$USER/Langstone/HW_Test.c -o /home/$USER/Langstone/HW_Test -llgpio
+cc /home/$USER/Langstone/Pluto_Test.c -o /home/$USER/Langstone/Pluto_Test -liio

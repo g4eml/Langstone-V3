@@ -96,7 +96,7 @@ sudo rm /etc/profile.d/sshpwd.sh
 if !(grep Langstone ~/.bashrc) then
   echo if test -z \"\$SSH_CLIENT\" >> ~/.bashrc 
   echo then >> ~/.bashrc
-  echo /home/pi/Langstone/run >> ~/.bashrc
+  echo /home/$USER/Langstone/run >> ~/.bashrc
   echo fi >> ~/.bashrc
 fi
 
