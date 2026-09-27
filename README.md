@@ -107,7 +107,7 @@ chmod +x installHack.sh
 
 At the start of the Install you will be asked for the Sudo password. Enter this as 'raspberry' , the same password you logged on with. 
 
-The initial build can take some time, however it does not need any user input, so go and make a cup of coffee and keep an eye on the touchscreen.  When the build is finished the Pi will reboot and should start-up with the Langstone Transceiver. Occasionally a second reboot may be required. If after this it still does not appear to be working then see the Langstone wiki for some things to look at.
+The initial build can take some time, however it does not need any further user input, so go and make a cup of coffee and keep an eye on the touchscreen.  When the build is finished the Pi will reboot and should start-up with the Langstone Transceiver. Occasionally a second reboot may be required. If after this it still does not appear to be working then see the Langstone wiki for some things to look at.
 
 # Updating the Software. 
 
