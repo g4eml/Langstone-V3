@@ -1,17 +1,37 @@
 #!/bin/bash
 # Langstone-V3 Install script 
-# Buster Version G4EML 08/08/24
+
+set -e
 
 echo "#########################################"
 echo "## Installing Langstone-V3 Transceiver ##"
 echo "#########################################"
 
+# --- Enable permanent passwordless sudo for all members of the sudo group ---
+SUDOERS_FILE="/etc/sudoers.d/010_sudo-group-nopasswd"
+
+if [ ! -f "$SUDOERS_FILE" ]; then
+    echo "Enabling passwordless sudo for all sudo group members."
+    echo "You may be asked for your password once."
+    echo "%sudo ALL=(ALL) NOPASSWD: ALL" | sudo tee "$SUDOERS_FILE" > /dev/null
+    sudo chmod 0440 "$SUDOERS_FILE"
+
+    # Remove the file if it's invalid, so sudo can never be broken
+    if ! sudo visudo -cf "$SUDOERS_FILE" > /dev/null; then
+        echo "Sudoers file invalid, removing it."
+        sudo rm -f "$SUDOERS_FILE"
+        exit 1
+    fi
+    echo "Passwordless sudo enabled."
+fi
+# --- End of sudo setup ---
 
 # -------- Upgrade distribution ------
 
 echo "#################################"
 echo "##     Update Distribution     ##"
 echo "#################################"
+sleep 2
 
 # Update the distribution
 sudo apt-get -y update
@@ -21,6 +41,7 @@ sudo apt-get -y update
 echo "#################################"
 echo "##       Install Packages      ##"
 echo "#################################"
+sleep 2
 
 ## Install the packages that we need
 sudo apt-get -y install git
@@ -40,6 +61,7 @@ sudo apt-get -y install sshpass
 echo "#################################"
 echo "##        Install LibIIO       ##"
 echo "#################################"
+sleep 2
 
 cd ~
 git clone https://github.com/analogdevicesinc/libiio.git
@@ -53,6 +75,7 @@ sudo make install
 echo "#################################"
 echo "##        Install lgpio      ##"
 echo "#################################"
+sleep 2
 
 cd ~
 wget https://github.com/joan2937/lg/archive/master.zip
@@ -70,6 +93,7 @@ cd ~
 echo "####################################"
 echo "##     Installing Langstone-V3    ##"
 echo "####################################"
+sleep 2
 
 git clone https://github.com/g4eml/Langstone-V3.git
 mv Langstone-V3 Langstone
